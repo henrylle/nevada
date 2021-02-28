@@ -33,7 +33,7 @@ if [[ "$crop_youtube" == "true" ]]; then
   echo $altura_nova_para_youtube
   crop_south=$(echo "scale=0; $crop_youtube/2" | bc -l )
   crop_north=$(echo "scale=0; $crop_youtube/2" | bc -l )
-  novo_nome_para_youtube="$nome_file""_""$largura_nova""x""$altura_nova_para_youtube"".""$extensao"
+  novo_nome_para_youtube="$nome_file""_youtube_""$largura_nova""x""$altura_nova_para_youtube"".""$extensao"
   echo $crop_north
   echo $crop_south  
   convert $novo_nome -gravity South -chop 0x$crop_south $novo_nome_para_youtube
