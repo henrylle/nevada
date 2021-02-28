@@ -20,10 +20,23 @@ proporcao_facebook_stories=$(echo "scale=4; 9/16" | bc -l )
 proporcao_instagram_feed=$(echo "scale=2; 1/1" | bc -l )
 proporcao_instagram_stories=$(echo "scale=4; 9/16" | bc -l )
 
-proporcao_destino=$proporcao_instagram_stories
+case $crop_to in
+  facebook_feed) proporcao_destino=$proporcao_facebook_feed ;;
+  facebook_stories) proporcao_destino=$proporcao_facebook_stories ;;
+  instagram_feed) proporcao_destino=$proporcao_instagram_feed ;;
+  instagram_stories) proporcao_destino=$proporcao_instagram_stories ;;
+esac
 
+echo $proporcao_destino
 nome_file=$(echo $path| cut -d'.' -f 1)
 extensao=$(echo $path| cut -d'.' -f 2)
+
+if (( $(echo "$proporcao_destino > 1" | bc -l) )); then
+  echo 'aqui regula a altura e já tá pronto'
+else
+  echo 'aqui regula a largura e não tá pronto'
+  exit 1;
+fi
 
 #CASO DÊ ERRO, SÓ INSTALAR O IMAGEMAGICK >> sudo apt-get install imagemagick -y 
 largura=$(identify -format '%w' $path)
@@ -31,7 +44,7 @@ altura=$(identify -format '%h' $path)
 largura_nova="$((largura * resize_percent/100))"
 altura_nova="$((altura * resize_percent/100))"
 
-echo $largura_nova
+echo $altura_nova
 novo_nome="$nome_file""_"$crop_to"_""$largura_nova""x""$altura_nova"".""$extensao"
 echo $novo_nome
 convert $path -resize "$largura_nova""x""$altura_nova" $novo_nome
