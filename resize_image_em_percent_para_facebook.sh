@@ -31,13 +31,6 @@ echo $proporcao_destino
 nome_file=$(echo $path| cut -d'.' -f 1)
 extensao=$(echo $path| cut -d'.' -f 2)
 
-if (( $(echo "$proporcao_destino > 1" | bc -l) )); then
-  echo 'aqui regula a altura e já tá pronto'
-else
-  echo 'aqui regula a largura e não tá pronto'
-  exit 1;
-fi
-
 #CASO DÊ ERRO, SÓ INSTALAR O IMAGEMAGICK >> sudo apt-get install imagemagick -y 
 largura=$(identify -format '%w' $path)
 altura=$(identify -format '%h' $path)
@@ -48,6 +41,16 @@ echo $altura_nova
 novo_nome="$nome_file""_"$crop_to"_""$largura_nova""x""$altura_nova"".""$extensao"
 echo $novo_nome
 convert $path -resize "$largura_nova""x""$altura_nova" $novo_nome
+
+
+if (( $(echo "$proporcao_destino > 1" | bc -l) )); then
+  echo 'aqui regula a altura e já tá pronto'
+else
+  echo 'aqui regula a largura e não tá pronto'
+  exit 1;
+fi
+
+
 crop_destino=$(echo "scale=4; $altura_nova - $largura_nova/($proporcao_destino)" | bc -l )
 altura_nova_para_youtube=$(echo "scale=0; $largura_nova/($proporcao_destino)" | bc -l )
 echo $altura_nova_para_youtube
