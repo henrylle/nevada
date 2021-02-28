@@ -45,22 +45,32 @@ convert $path -resize "$largura_nova""x""$altura_nova" $novo_nome
 
 if (( $(echo "$proporcao_destino > 1" | bc -l) )); then
   echo 'aqui regula a altura e já tá pronto'
+  crop_destino=$(echo "scale=4; $altura_nova - $largura_nova/($proporcao_destino)" | bc -l )
+  altura_nova=$(echo "scale=0; $largura_nova/($proporcao_destino)" | bc -l )
+  crop_south=$(echo "scale=0; $crop_destino/2" | bc -l )
+  crop_north=$(echo "scale=0; $crop_destino/2" | bc -l )  
+  crop_east=0
+  crop_west=0
 else
   echo 'aqui regula a largura e não tá pronto'
-  exit 1;
+  crop_destino=$(echo "scale=4; $largura_nova - $altura_nova*($proporcao_destino)" | bc -l )  
+  largura_nova=$(echo "scale=0; $altura_nova*($proporcao_destino)" | bc -l )  
+  largura_nova=${largura_nova%.*} 
+  crop_east=$(echo "scale=0; $crop_destino/2" | bc -l )
+  crop_west=$(echo "scale=0; $crop_destino/2" | bc -l )    
+  crop_north=0
+  crop_south=0  
 fi
 
-
-crop_destino=$(echo "scale=4; $altura_nova - $largura_nova/($proporcao_destino)" | bc -l )
-altura_nova_para_youtube=$(echo "scale=0; $largura_nova/($proporcao_destino)" | bc -l )
-echo $altura_nova_para_youtube
-crop_south=$(echo "scale=0; $crop_destino/2" | bc -l )
-crop_north=$(echo "scale=0; $crop_destino/2" | bc -l )
-novo_nome_para_dest_escolhido="$nome_file""_"$crop_to"_""$largura_nova""x""$altura_nova_para_youtube"".""$extensao"
-echo $crop_north
-echo $crop_south  
+novo_nome_para_dest_escolhido="$nome_file""_"$crop_to"_""$largura_nova""x""$altura_nova"".""$extensao"
+echo "crop nort: $crop_north"
+echo "crop south: $crop_south"
+echo "crop east: $crop_east"
+echo "crop west: $crop_west"
 convert $novo_nome -gravity South -chop 0x$crop_south $novo_nome_para_dest_escolhido
 convert $novo_nome_para_dest_escolhido -gravity North -chop 0x$crop_north $novo_nome_para_dest_escolhido
+convert $novo_nome_para_dest_escolhido -gravity East -chop "$crop_east"x0 $novo_nome_para_dest_escolhido
+convert $novo_nome_para_dest_escolhido -gravity West -chop "$crop_west"x0 $novo_nome_para_dest_escolhido
 rm $novo_nome
 novo_nome=$novo_nome_para_dest_escolhido
 
