@@ -1,8 +1,3 @@
-#Exemplo de chamada ./resize_image_em_percent_para_youtube.sh IMG_4071.JPG 50 true
-#Obs: Se você escolher um arquivo de subpasta a imagem final tb será gerada na subpasta
-#Resultado: Vai gerar um arquivo com 50% da resolução do arquivo IMG_4071.JPG e cropado para o Youtube
-#OBS: Para NÃO CROPAR  a imagem passe o parâmetro como false. Caso contrário sempre será cropado para o Youtube.
-#O CROP será em igual a escala para a parte superior e inferior da imagem
 path=$1
 resize_percent=$2
 crop_youtube=$3
