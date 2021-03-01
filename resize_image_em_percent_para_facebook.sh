@@ -1,6 +1,8 @@
 path=$1
 resize_percent=$2
 crop_to=$3
+move_to_left_in_pixel=$4
+
 
 opcoes_validas="facebook_feed, facebook_stories, instagram_feed, instragram_stories"
 if [ -z "$crop_to" ]; then
@@ -11,6 +13,10 @@ fi
 if [ "$crop_to" != "facebook_feed" ] && [ "$crop_to" != "facebook_stories" ] && [ "$crop_to" != "instagram_feed" ] && [ "$crop_to" != "instagram_stories" ]; then
   echo "$crop_to nao eh um crop de destino valido. Opcoes validas: $opcoes_validas"
   exit 1;
+fi
+
+if [ -z "$move_to_left_in_pixel" ]; then
+  move_to_left_in_pixel=0
 fi
 
 #ASPECT RATIO IDEAL PARA YOUTUBE: 16X9 
@@ -37,14 +43,14 @@ altura=$(identify -format '%h' $path)
 largura_nova="$((largura * resize_percent/100))"
 altura_nova="$((altura * resize_percent/100))"
 
-echo $altura_nova
+
 novo_nome="$nome_file""_"$crop_to"_""$largura_nova""x""$altura_nova"".""$extensao"
 echo $novo_nome
 convert $path -resize "$largura_nova""x""$altura_nova" $novo_nome
 
 
 if (( $(echo "$proporcao_destino > 1" | bc -l) )); then
-  echo 'aqui regula a altura e já tá pronto'
+  echo 'Vamos regular pela altura'
   crop_destino=$(echo "scale=4; $altura_nova - $largura_nova/($proporcao_destino)" | bc -l )
   altura_nova=$(echo "scale=0; $largura_nova/($proporcao_destino)" | bc -l )
   crop_south=$(echo "scale=0; $crop_destino/2" | bc -l )
@@ -52,7 +58,7 @@ if (( $(echo "$proporcao_destino > 1" | bc -l) )); then
   crop_east=0
   crop_west=0
 else
-  echo 'aqui regula a largura e não tá pronto'
+  echo 'Vamos regular pela largura'
   crop_destino=$(echo "scale=4; $largura_nova - $altura_nova*($proporcao_destino)" | bc -l )  
   largura_nova=$(echo "scale=0; $altura_nova*($proporcao_destino)" | bc -l )  
   largura_nova=${largura_nova%.*} 
@@ -61,6 +67,11 @@ else
   crop_north=0
   crop_south=0  
 fi
+
+crop_east=$(echo "scale=0; $crop_east + $move_to_left_in_pixel" | bc -l )
+crop_west=$(echo "scale=0; $crop_west - $move_to_left_in_pixel" | bc -l )
+echo "Crop a esquerda: $crop_east" 
+echo "Crop a direita: $crop_west"
 
 novo_nome_para_dest_escolhido="$nome_file""_"$crop_to"_""$largura_nova""x""$altura_nova"".""$extensao"
 echo "crop nort: $crop_north"
