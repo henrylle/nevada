@@ -1,9 +1,10 @@
 video_path=$1
 crop_to=$2
 clean_temp_folder=true
-name_video_path=$(basename $video_path)
-final_video_path="stage/final_$name_video_path"
-path_image_example="stage/example_img_$name_video_path.jpg"
+#name_video_path=$(basename $video_path)
+nome_file=$(echo $video_path | cut -d'.' -f 1)
+extensao=$(echo $video_path| cut -d'.' -f 2)
+
 
 error_output() {
   echo 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
@@ -49,18 +50,20 @@ esac
 
 config_scale_video="crop=$width_new_video:$height_new_video:$crop_left:$crop_top"
 
+final_video_path="$nome_file""_"$crop_to"_""$width_new_video""x""$height_new_video"".""$extensao"
+path_image_example="$nome_file""_screenshot_"$crop_to"_""$width_new_video""x""$height_new_video"".jpg"
+
+
+
 ##Extrair Video Quadrado
-if [ $PREVIEW != "true" ]; then
-  printf "1/4: Gerando vídeo no formato para o formato $crop_to na resolucao $width_new_video:$height_new_video"
+if [ ! -z $PREVIEW ] && [ $PREVIEW == "true" ]; then
+  ffmpeg -i $video_path -t 10 -vf "$config_scale_video" -vframes 1 -q:v 0 $path_image_example -y
+  ffmpeg -i $path_image_example -t 10 -vf "color=red@0.5:60x60 [c]; [in][c] overlay=$width_new_video/2:$height_new_video/2" -vframes 1 -q:v 2 $path_image_example -y
+  eog $path_image_example  
+else
+  printf "Gerando vídeo para o formato $crop_to na resolucao $width_new_video:$height_new_video"
   ffmpeg -i $video_path -vf "$config_scale_video" -c:a copy -c:v libx264 -crf 0 $final_video_path -y
   check_error
   printf 'OK\n'  
-fi
-
-if [ $PREVIEW == "true" ]; then  
-  ffmpeg -i $video_path -t 10 -vf "$config_scale_video" -vframes 1 -q:v 0 $path_image_example -y
-  ffmpeg -i $path_image_example -t 10 -vf "color=red@0.5:60x60 [c]; [in][c] overlay=$width_new_video/2:$height_new_video" -vframes 1 -q:v 2 $path_image_example -y
-  eog $path_image_example
-else
   ffplay $final_video_path
 fi
