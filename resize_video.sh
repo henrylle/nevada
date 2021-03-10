@@ -48,7 +48,7 @@ if (( $(echo "$duracao_video > 15" | bc -l) )); then
     if [ -z "$duracao_prevista_segmento" ]; then
       duracao_prevista_segmento=8
     fi  
-    parametros_corte_stories="-segment_time $duracao_prevista_segmento -f segment -reset_timestamps 1"
+    parametros_corte_stories="-x264opts keyint=30:min-keyint=30:no-scenecut -segment_time $duracao_prevista_segmento -f segment -reset_timestamps 1"
     sequence_pattern="_video_%03d"  
   fi
 fi
