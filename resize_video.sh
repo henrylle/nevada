@@ -46,7 +46,7 @@ duracao_video=$(ffprobe -v error -show_entries format=duration -of default=nopri
 if (( $(echo "$duracao_video > 15" | bc -l) )); then
   if [ "$crop_to" == "facebook_stories" ] || [ "$crop_to" == "instagram_stories" ]; then      
     if [ -z "$duracao_prevista_segmento" ]; then
-      duracao_prevista_segmento=8
+      duracao_prevista_segmento=14
     fi  
     parametros_corte_stories="-x264opts keyint=30:min-keyint=30:no-scenecut -segment_time $duracao_prevista_segmento -f segment -reset_timestamps 1"
     sequence_pattern="_video_%03d"  
